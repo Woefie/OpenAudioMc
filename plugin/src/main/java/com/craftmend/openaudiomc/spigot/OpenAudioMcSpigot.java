@@ -32,6 +32,11 @@ import com.craftmend.openaudiomc.spigot.modules.regions.RegionModule;
 import com.craftmend.openaudiomc.spigot.modules.speakers.SpeakerModule;
 import com.craftmend.openaudiomc.spigot.services.threading.ExecutorService;
 
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
+import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -62,7 +67,7 @@ public final class OpenAudioMcSpigot extends JavaPlugin implements OpenAudioInvo
     private ServerService serverService;
     private SpigotVoiceChatModule spigotVoicechatModule;
     private OpenAudioMc openAudioMc;
-
+    public static StateFlag VOICE;
     /**
      * Constant: main plugin instance and plugin timing
      */
@@ -132,6 +137,26 @@ public final class OpenAudioMcSpigot extends JavaPlugin implements OpenAudioInvo
     public void registerEvents(Listener... listeners) {
         for (Listener listener : listeners) {
             getServer().getPluginManager().registerEvents(listener, this);
+        }
+    }
+
+    @Override
+    public void onLoad(){
+        FlagRegistry flagRegistry = WorldGuard.getInstance().getFlagRegistry();
+
+        try {
+
+            StateFlag flag = new StateFlag("voice", true);
+            flagRegistry.register(flag);
+            VOICE = flag;
+        } catch (FlagConflictException e) {
+
+            Flag<?> existing = flagRegistry.get("voice");
+            if (existing instanceof StateFlag) {
+                VOICE = (StateFlag) existing;
+            } else {
+
+            }
         }
     }
 
